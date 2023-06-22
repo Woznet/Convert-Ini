@@ -1,24 +1,24 @@
 <#/*
- * @Author: Joseph Iannone 
- * @Date: 2023-02-06 23:57:35 
- * @Last Modified by: Joseph Iannone
- * @Last Modified time: 2023-02-07 16:02:20
+ * @Author: Joseph Iannone
+ * @Date: 2023-02-06 23:57:35
+ * @Last Modified by: Woz
+ * @Last Modified time: 2023-06-21 23:18:20
  */#>
 
 
 Function ConvertTo-Ini {
-    <#
+  <#
     .SYNOPSIS
         Convert PSObjects to INI text
-        
+
     .DESCRIPTION
         Convert PSObjects to INI text
-        
+
     .PARAMETER InputObject
         A PSObject to convert to INI
-    
+
     .EXAMPLE
-        PS C:> $obj = @{
+        PS C:> $Obj = @{
         >>      Name = 'Joe'
         >>      Language = 'PowerShell'
         >>      Address = @{
@@ -28,8 +28,8 @@ Function ConvertTo-Ini {
         >>          ZIP = 19147
         >>      }
         >>    }
-        PS C:> $ini = $obj | ConvertTo-Ini
-        PS C:> $ini > Config.ini
+        PS C:> $Ini = $Obj | ConvertTo-Ini
+        PS C:> $Ini > Config.ini
         PS C:> cat .\Config.ini
         Name=Joe
         Language=PowerShell
@@ -40,32 +40,20 @@ Function ConvertTo-Ini {
         State=Pennsylvania
         City=Philadelphia
 
-        
+
     #>
-    [CmdletBinding()]
-    [OutputType([string])]
-    Param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)][Object]$InputObject,
-        [Parameter(Mandatory=$false, ValueFromPipeline=$false)][switch]$Compress
-    )
-    
-    Begin {
-    
-    }
-    
-    Process {
-
-        # normalize / validate input object as json
-        $obj = $InputObject | ConvertTo-Json | ConvertFrom-Json
-        
-        $result = [ConvertIni.IniWriter]::Write($obj, $Compress)
-        
-        $result
-    
-    }
-    
-    End {
-
-    }
-
+  [CmdletBinding()]
+  [OutputType([string])]
+  Param(
+    [Parameter(Mandatory, ValueFromPipeline)]
+    [Object]$InputObject,
+    [Parameter(Mandatory = $false, ValueFromPipeline = $false)]
+    [switch]$Compress
+  )
+  Process {
+    # normalize / validate input object as json
+    $Obj = $InputObject | ConvertTo-Json | ConvertFrom-Json
+    $Result = [ConvertIni.IniWriter]::Write($Obj, $Compress.IsPresent)
+    $Result
+  }
 }
