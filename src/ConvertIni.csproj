@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>ConvertIni</RootNamespace>
+    <RootNamespace>WozDev</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

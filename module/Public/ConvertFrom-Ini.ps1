@@ -1,80 +1,85 @@
-<#/*
- * @Author: Joseph Iannone
- * @Date: 2023-02-06 12:35:13
- * @Last Modified by: Woz
- * @Last Modified time: 2023-06-21 23:18:20
- */#>
+function ConvertFrom-Ini {
+    <#
+.SYNOPSIS
+    Converts INI file content to a PowerShell object.
 
+.DESCRIPTION
+    The ConvertFrom-Ini function parses the content of an INI file and converts it into a PowerShell object.
+    It can take the content of an INI file either directly as a string or from a file path.
 
-Function ConvertFrom-Ini {
-  <#
-    .SYNOPSIS
-        Convert INI text to PSCustomObject
+.PARAMETER FilePath
+    Specifies the path to the INI file. The content of the file at the specified path will be converted to a PowerShell object.
 
-    .DESCRIPTION
-        Convert INI text to PSCustomObject
+.PARAMETER IniContent
+    Specifies the INI content as a string. The string content will be converted to a PowerShell object.
 
-    .PARAMETER InputObject
-        A INI string to convert to PSCustomObject
+.EXAMPLE
+    PS C:\> ConvertFrom-Ini -FilePath "C:\path\to\yourfile.ini"
+    Converts the content of the INI file located at "C:\path\to\yourfile.ini" to a PowerShell object.
 
-    .EXAMPLE
-        PS C:> $Ini = "
-        >> Language=Powershell
-        >> Name=Joe
-        >> [Address]
-        >> ZIP=19147
-        >> Street=123 Fitzwater Street
-        >> State=Pennsylvania
-        >> "
-        PS C:> $Obj = $Ini | ConvertFrom-Ini
-        PS C:> $Obj
+.EXAMPLE
+    PS C:\> ConvertFrom-Ini -IniContent "[Section1]`nKey1=Value1`nKey2=Value2"
+    Converts the provided INI content string to a PowerShell object.
 
+.INPUTS
+    String
+    You can pipe a string to this function.
 
-        Language   Name Address
-        --------   ---- -------
-        Powershell Joe  @{ZIP=19147; Street=123 Fitzwater Street; City=Philadelphia; State=Pennsylvania}
+.OUTPUTS
+    PSCustomObject
+    The function returns a PowerShell custom object representing the parsed INI content.
 
+.NOTES
+    Author: Woz
+    Version: 1.0
+#>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'FilePath')]
+        [ValidateScript({
+                if (-not (Test-Path -Path $_ -PathType Leaf)) {
+                    throw ('{0} - Was not found or is in accessible' -f $_)
+                }
+                return $true
+            })]
+        [string]$FilePath,
 
-        PS C:> $Obj.Name
-        Joe
-        PS C:> $Obj.Address.Street
-        123 Fitzwater Street
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'IniContent')]
+        [string]$IniContent
+    )
 
-    .EXAMPLE
-        PS C:> $Obj1 = Get-Content .\Config.ini | ConvertFrom-Ini
-        PS C:> $Obj2 = Get-Content -Raw .\Config.ini | ConvertFrom-Ini
-        PS C:> $Obj3 = ConvertFrom-Ini -InputObject (Get-Content .\Config.ini)
-
-    #>
-  [CmdletBinding()]
-  [OutputType([PSCustomObject])]
-  Param(
-    [Parameter(Mandatory = $false, ValueFromPipeline)]
-    [string]$InputObject
-  )
-  Begin {
-    # [System.Collections.ArrayList]$InputBuffer = [System.Collections.ArrayList]::new()
-    $InputBuffer = [System.Collections.Generic.List[string]]::new()
-  }
-  Process {
-    try {
-      [void]$InputBuffer.Add([string]$InputObject)
+    begin {
+        # Load the ConvertIni assembly if it's not already loaded
+        try {
+            [void][ConvertIni.IniParser]
+        }
+        catch {
+            Write-Verbose 'Loading Assembly ConvertIni.dll'
+            Add-Type -Path $PSScriptRoot\..\lib\ConvertIni.dll
+        }
     }
-    catch {
-      [System.Management.Automation.ErrorRecord]$e = $_
-      [PSCustomObject]@{
-        Type      = $e.Exception.GetType().FullName
-        Exception = $e.Exception.Message
-        Reason    = $e.CategoryInfo.Reason
-        Target    = $e.CategoryInfo.TargetName
-        Script    = $e.InvocationInfo.ScriptName
-        Message   = $e.InvocationInfo.PositionMessage
-      }
+
+    process {
+        # Read from file if FilePath is provided
+        if ($FilePath) {
+            $IniContent = Get-Content -Path $FilePath -Raw
+        }
+
+        try {
+            # Parse the INI content into a PowerShell object
+            $PsObject = [ConvertIni.IniParser]::Parse($IniContent)
+            return $PsObject
+        }
+        catch {
+            [System.Management.Automation.ErrorRecord]$e = $_
+            [PSCustomObject]@{
+                Exception = $e.Exception.Message
+                Reason = $e.CategoryInfo.Reason
+                Target = $e.CategoryInfo.TargetName
+                Script = $e.InvocationInfo.ScriptName
+                Message = $e.InvocationInfo.PositionMessage
+            }
+            throw $_
+        }
     }
-  }
-  End {
-    [string]$InputStr = $InputBuffer -join [Environment]::NewLine
-    [PSCustomObject]$Result = [ConvertIni.IniParser]::Parse($InputStr)
-    $Result
-  }
 }

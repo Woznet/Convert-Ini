@@ -1,42 +1,40 @@
 using System;
-using System.Collections.Generic;
-using System.Management.Automation;
 using System.Text;
 
-namespace ConvertIni
+namespace WozDev
 {
     public class IniWriter
     {
         /// <summary>
-        /// Convert PSObject to ini string.
+        /// Convert IniObject to ini string.
         /// </summary>
-        /// <param name="inputObject">The PSObject to convert.</param>
+        /// <param name="inputObject">The IniObject to convert.</param>
         /// <param name="compressed">Determines if the output should be compressed (no extra line breaks).</param>
         /// <returns>A string in INI format.</returns>
-        public static string Write(PSObject inputObject, bool compressed = false)
+        public static string Write(IniObject inputObject, bool compressed = false)
         {
             StringBuilder output = new StringBuilder();
-            List<string> noSection = compressed ? null : new List<string>();
             string newLine = compressed ? string.Empty : Environment.NewLine;
 
-            foreach (PSNoteProperty item in inputObject.Properties)
+            foreach (var section in inputObject.Sections)
             {
-                string itemValue = item.Value?.ToString() ?? string.Empty;
-
-                if (item.Value is PSObject childObject)
+                if (!compressed)
                 {
-                    output.AppendLine($"[{item.Name}]");
-                    output.Append(Write(childObject, compressed));
+                    // Add a new line before each section, except for the first
+                    if (output.Length > 0)
+                    {
+                        output.Append(newLine);
+                    }
                 }
-                else
-                {
-                    noSection?.Add($"{item.Name}={itemValue}");
-                }
-            }
 
-            if (!compressed)
-            {
-                output.Insert(0, $"{string.Join(Environment.NewLine, noSection)}{newLine}");
+                // Append the section header
+                output.Append($"[{section.Key}]{newLine}");
+
+                // Append each key-value pair within the section
+                foreach (var keyValue in section.Value)
+                {
+                    output.Append($"{keyValue.Key}={keyValue.Value}{newLine}");
+                }
             }
 
             return output.ToString();
