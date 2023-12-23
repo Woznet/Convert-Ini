@@ -5,8 +5,4 @@
     <RootNamespace>WozDev</RootNamespace>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" />
-  </ItemGroup>
-
 </Project>
