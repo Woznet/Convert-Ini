@@ -12,7 +12,7 @@
 RootModule = 'IniConverter.psm1'
 
 # Version number of this module.
-ModuleVersion = '2.0.0.0'
+ModuleVersion = '2.5.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -54,7 +54,7 @@ Description = 'A PowerShell module for parsing, converting, and managing ini fil
 # RequiredModules = @()
 
 # Assemblies that must be loaded prior to importing this module
-RequiredAssemblies = @('lib\ConvertIni\ConvertIni.dll')
+RequiredAssemblies = @('lib\ConvertIni.dll')
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
 # ScriptsToProcess = @()
@@ -93,7 +93,7 @@ AliasesToExport = @()
 
 # List of all files packaged with this module
 FileList = @(
-  'lib\ConvertIni\ConvertIni.dll',
+  'lib\ConvertIni.dll',
   'Public\ConvertFrom-Ini.ps1',
   'Public\ConvertTo-Ini.ps1',
   'Public\Add-IniProperty.ps1',
@@ -117,22 +117,27 @@ PrivateData = @{
 		Tags = @('INI', 'configuration', 'initialization', 'ConvertFrom', 'ConvertTo', 'Add', 'Remove')
 
 		# A URL to the license for this module.
-		LicenseUri = 'https://github.com/joeiannone/Convert-Ini/blob/master/LICENSE'
+		LicenseUri = 'https://github.com/woznet/Convert-Ini/blob/master/LICENSE'
 
 		# A URL to the main website for this project.
-		ProjectUri = 'https://github.com/joeiannone/Convert-Ini'
+		ProjectUri = 'https://github.com/woznet/Convert-Ini'
 
 		# A URL to an icon representing this module.
 		# IconUri = ''
 
 		# ReleaseNotes of this module
 		ReleaseNotes = @'
- 2.0.0.0 - 6-21-2023
+		2.5.0 - 12-23-2023
+		
+		* remove unnecessary duplicated code in IniParser.cs
+		* revised the iniEntryValue coding so the quotes from the Ini file syntax did not become part of the iniEntryValue
+		
+    2.0.0.0 - 6-21-2023
 
- * cleaned up code
- * added ParseFile method to ConvertIni.IniParser.  This method allows a file or a file and encoding to be used to invoke IniParser.
+    * cleaned up code
+    * added ParseFile method to ConvertIni.IniParser.  This method allows a file or a file and encoding to be used to invoke IniParser.
 
- * TO DO - update ConvertFrom-Ini to support using the ParseFile method
+    * TO DO - update ConvertFrom-Ini to support using the ParseFile method
 
 
 '@

@@ -1,59 +1,45 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Management.Automation;
+using System.Text;
 
 namespace ConvertIni
 {
     public class IniWriter
     {
         /// <summary>
-        /// Convert PSObject to ini string
+        /// Convert PSObject to ini string.
         /// </summary>
-        /// <param name="inputObject"></param>
-        /// <param name="compressed"></param>
-        /// <returns></returns>
+        /// <param name="inputObject">The PSObject to convert.</param>
+        /// <param name="compressed">Determines if the output should be compressed (no extra line breaks).</param>
+        /// <returns>A string in INI format.</returns>
         public static string Write(PSObject inputObject, bool compressed = false)
         {
+            StringBuilder output = new StringBuilder();
+            List<string> noSection = compressed ? null : new List<string>();
+            string newLine = compressed ? string.Empty : Environment.NewLine;
 
-            string output = string.Empty;
-
-            // initialize an empty list to put entries with no section
-            List<string> noSection = new List<string>();
-
-            // determine if extra new lines will be used based on compressed flag
-            string room = compressed ? string.Empty : Environment.NewLine;
-
-            // iterate through properties
             foreach (PSNoteProperty item in inputObject.Properties)
             {
-                // make sure item value is set to empty string when null
-                var itemValue = (item.Value == null) ? string.Empty : item.Value;
+                string itemValue = item.Value?.ToString() ?? string.Empty;
 
-                // when the current item is an object
-                if (itemValue.GetType() == typeof(PSObject))
+                if (item.Value is PSObject childObject)
                 {
-                    // set section
-                    output += $"[{item.Name}]{Environment.NewLine}";
-
-                    // recursive call for child object
-                    output += Write((PSObject)itemValue, compressed);
-
+                    output.AppendLine($"[{item.Name}]");
+                    output.Append(Write(childObject, compressed));
                 }
-
                 else
                 {
-                    // add entry to no section list to be dealt with later
-                    noSection.Add($"{item.Name}={itemValue.ToString()}{Environment.NewLine}");
+                    noSection?.Add($"{item.Name}={itemValue}");
                 }
-
             }
 
-            // prepend items with no section
-            output = $"{string.Join("", noSection)}{room}{output}";
+            if (!compressed)
+            {
+                output.Insert(0, $"{string.Join(Environment.NewLine, noSection)}{newLine}");
+            }
 
-            return output;
-
+            return output.ToString();
         }
-
     }
 }
