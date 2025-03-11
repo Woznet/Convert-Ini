@@ -12,7 +12,7 @@
 RootModule = 'IniConverter.psm1'
 
 # Version number of this module.
-ModuleVersion = '2.5.0'
+ModuleVersion = '2.5.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -27,7 +27,7 @@ Author = 'Woz'
 CompanyName = 'Woz'
 
 # Copyright statement for this module
-Copyright = '(c) 2023 Woz. All rights reserved.'
+Copyright = '(c) 2025 Woz. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = 'A PowerShell module for parsing, converting, and managing ini file properties'
@@ -98,11 +98,6 @@ FileList = @(
   'Public\ConvertTo-Ini.ps1',
   'Public\Add-IniProperty.ps1',
   'Public\Remove-IniProperty.ps1',
-  'tests\ConvertFrom-Ini.Test.ps1',
-  'tests\ConvertTo-Ini.Test.ps1',
-  'tests\Add-IniProperty.Test.ps1',
-  'tests\Remove-IniProperty.Test.ps1',
-  'tests\test_input_001.ini',
   'IniConverter.psd1',
   'IniConverter.psm1',
   'README.md'
@@ -126,21 +121,7 @@ PrivateData = @{
 		# IconUri = ''
 
 		# ReleaseNotes of this module
-		ReleaseNotes = @'
-		2.5.0 - 12-23-2023
-		
-		* remove unnecessary duplicated code in IniParser.cs
-		* revised the iniEntryValue coding so the quotes from the Ini file syntax did not become part of the iniEntryValue
-		
-    2.0.0.0 - 6-21-2023
-
-    * cleaned up code
-    * added ParseFile method to ConvertIni.IniParser.  This method allows a file or a file and encoding to be used to invoke IniParser.
-
-    * TO DO - update ConvertFrom-Ini to support using the ParseFile method
-
-
-'@
+		# ReleaseNotes = ''
 
 	} # End of PSData hashtable
 
